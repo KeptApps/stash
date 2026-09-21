@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#EEF3F8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Stash">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Stash · Savings Challenge Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,6 +147,13 @@ dialog::backdrop{background:rgba(17,24,39,.55)}
 .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--rot))}}
 
+
+.total{display:flex;flex-wrap:wrap;gap:4px 20px;align-items:baseline;background:var(--ink);color:var(--bg);border-radius:var(--r-md);padding:12px 18px;margin-bottom:14px;font-size:15px}
+.total b{font-weight:800;font-size:19px}
+.total .t-lbl{font-weight:600;margin-right:auto}
+.total span{opacity:.85}
+.steps{margin:0 0 16px;padding-left:22px;color:var(--ink)}
+.steps li{margin-bottom:8px}
 footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
 
 @media (max-width:620px){
@@ -162,6 +176,9 @@ footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
       Stash
     </div>
     <select id="challengePick" class="pick" aria-label="Choose challenge"></select>
+    <button class="icon-btn" id="installBtn" aria-label="Install Stash" title="Install Stash" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>
+    </button>
     <button class="icon-btn" id="settingsBtn" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
@@ -180,6 +197,7 @@ footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
     <div class="types" id="typeList">
       <button type="button" class="type" data-type="env" aria-pressed="true"><span class="ico">✉️</span><span><b>100 Envelope Challenge</b><span>Fill envelopes 1 to 100 in any order.</span></span></button>
       <button type="button" class="type" data-type="week" aria-pressed="false"><span class="ico">📅</span><span><b>52-Week Challenge</b><span>Save a little more each week for a year.</span></span></button>
+      <button type="button" class="type" data-type="day" aria-pressed="false"><span class="ico">⚡</span><span><b>30-Day Challenge</b><span>A quick one-month boost. Save a little every day.</span></span></button>
       <button type="button" class="type" data-type="goal" aria-pressed="false"><span class="ico">🎯</span><span><b>My own goal</b><span>Set a target and add money whenever you can.</span></span></button>
     </div>
 
@@ -198,6 +216,15 @@ footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
         </select>
         <span class="hint" id="multHint"></span>
       </div>
+    </div>
+    <div data-for="day" hidden>
+      <div class="row2">
+        <div class="field"><label for="fDayMode">Daily amounts</label>
+          <select id="fDayMode"><option value="inc" selected>Growing: day 1 = 1x, day 2 = 2x…</option><option value="flat">Same amount every day</option></select>
+        </div>
+        <div class="field"><label for="fDayAmt" id="fDayAmtLbl">Day 1 amount</label><input id="fDayAmt" type="number" min="0.01" step="any" inputmode="decimal" value="1"></div>
+      </div>
+      <span class="hint" id="dayHint" style="display:block;margin:-6px 0 14px;font-size:13px;color:var(--ink-soft)"></span>
     </div>
     <div data-for="week" hidden>
       <div class="field"><label for="fStart">Week 1 amount</label>
@@ -271,9 +298,13 @@ footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
     </div>
     <div class="actions"><button class="btn btn-gold" id="sSave">Save changes</button></div>
     <hr class="divider">
-    <div class="field"><span class="lbl">Backup</span><span class="hint">Your savings live in this browser on this device. Download a backup now and then, or to move to another device.</span></div>
+    <div class="field" id="installWrap"><span class="lbl">Install Stash</span><span class="hint" id="installHint">Add Stash to your home screen or dock so it opens like an app, even offline.</span></div>
+    <div class="actions" style="justify-content:flex-start" id="installRow"><button class="btn btn-gold" id="sInstall">Install Stash</button></div>
+    <hr class="divider" id="installDiv">
+    <div class="field"><span class="lbl">Backup</span><span class="hint">Your savings live in this browser on this device. Download a backup now and then, or to move to another device. Export CSV opens in Excel or Google Sheets.</span></div>
     <div class="actions" style="justify-content:flex-start">
       <button class="btn btn-ghost" id="sExport">Download backup</button>
+      <button class="btn btn-ghost" id="sCsv">Export CSV</button>
       <button class="btn btn-ghost" id="sImport">Restore backup</button>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
@@ -282,6 +313,16 @@ footer{margin-top:36px;text-align:center;color:var(--ink-soft);font-size:13px}
       <button class="btn btn-danger" id="sDelete">Delete this challenge</button>
       <button class="btn btn-ink" id="sClose">Done</button>
     </div>
+  </div>
+</dialog>
+
+<!-- Install help -->
+<dialog id="installDlg">
+  <div class="sheet">
+    <h3>Install Stash</h3>
+    <p class="sub" id="installIntro">Add Stash to your home screen so it opens like an app.</p>
+    <ol class="steps" id="installSteps"></ol>
+    <div class="actions"><button class="btn btn-ink" id="installClose">Got it</button></div>
   </div>
 </dialog>
 
@@ -338,15 +379,18 @@ function money(v, cur, compact){
 }
 
 /* ============ CHALLENGE MATHS ============ */
-function slotCount(c){ return c.type==="env" ? 100 : c.type==="week" ? 52 : 0; }
+function slotCount(c){ return c.type==="env" ? 100 : c.type==="week" ? 52 : c.type==="day" ? 30 : 0; }
+const SLOT = {env:["Envelope","envelopes"], week:["Week","weeks"], day:["Day","days"]};
 function slotAmount(c,n){
   if(c.type==="env") return n * c.mult;
   if(c.type==="week") return (c.reverse ? (53-n) : n) * c.start;
+  if(c.type==="day") return c.dayMode==="flat" ? c.dayAmt : n * c.dayAmt;
   return 0;
 }
 function goalOf(c){
   if(c.type==="env") return 5050 * c.mult;
   if(c.type==="week") return 1378 * c.start;
+  if(c.type==="day") return c.dayMode==="flat" ? 30 * c.dayAmt : 465 * c.dayAmt;
   return Number(c.target)||0;
 }
 function savedOf(c){
@@ -441,13 +485,15 @@ function render(){
   const unit = c.type==="week" ? (st===1?"week":"weeks") : (st===1?"day":"days");
   const doneCount = entriesOf(c);
   let facts = `<span><b class="num">${Math.round(pct*100)}%</b> there</span><span><b class="num">${money(left,c.currency,true)}</b> to go</span>`;
-  if(c.type!=="goal") facts += `<span><b class="num">${doneCount}</b> of ${slotCount(c)} ${c.type==="env"?"envelopes":"weeks"}</span>`;
+  if(c.type!=="goal") facts += `<span><b class="num">${doneCount}</b> of ${slotCount(c)} ${SLOT[c.type][1]}</span>`;
   facts += `<span>🔥 <b class="num">${st}</b> ${unit} in a row</span>`;
 
   const cta = c.type==="env"
     ? `<button class="btn btn-gold" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>Pick my envelope</button>`
     : c.type==="week"
     ? `<button class="btn btn-gold" id="nextWeekBtn">Save this week</button><button class="btn btn-ghost" id="pickBtn">Pick a random week</button>`
+    : c.type==="day"
+    ? `<button class="btn btn-gold" id="nextWeekBtn">Save today</button><button class="btn btn-ghost" id="pickBtn">Pick a random day</button>`
     : `<button class="btn btn-gold" id="addBtn">Add money</button>`;
 
   let board = "";
@@ -467,13 +513,22 @@ function render(){
       if(c.type==="env"){
         cells += `<button class="env num ${full?"full":""}" data-slot="${i}" aria-pressed="${full}" aria-label="Envelope ${i}, ${money(amt,c.currency)}${full?", filled":""}">${money(amt,c.currency,true)}</button>`;
       } else {
-        cells += `<button class="env week num ${full?"full":""}" data-slot="${i}" aria-pressed="${full}" aria-label="Week ${i}, ${money(amt,c.currency)}${full?", saved":""}"><small>Wk ${i}</small>${money(amt,c.currency,true)}</button>`;
+        cells += `<button class="env week num ${full?"full":""}" data-slot="${i}" aria-pressed="${full}" aria-label="${SLOT[c.type][0]} ${i}, ${money(amt,c.currency)}${full?", saved":""}"><small>${c.type==="day"?"Day":"Wk"} ${i}</small>${money(amt,c.currency,true)}</button>`;
       }
     }
-    board = `<div class="board-head"><h2>${c.type==="env"?"Your envelopes":"Your weeks"}</h2><span>Tap to mark as saved</span></div><div class="grid" id="grid">${cells}</div>`;
+    board = `<div class="board-head"><h2>Your ${SLOT[c.type][1]}</h2><span>Tap to mark as saved</span></div><div class="grid" id="grid">${cells}</div>`;
   }
 
+  let totalStrip = "";
+  if(state.challenges.length > 1){
+    const byCur = {};
+    let done = 0;
+    state.challenges.forEach(ch=>{ const g=goalOf(ch), sv=savedOf(ch); (byCur[ch.currency] = byCur[ch.currency]||{s:0,g:0}); byCur[ch.currency].s+=sv; byCur[ch.currency].g+=g; if(g && sv>=g) done++; });
+    const parts = Object.entries(byCur).map(([cur,v])=>`<span><b class="num">${money(v.s,cur)}</b> of ${money(v.g,cur,true)}</span>`).join("");
+    totalStrip = `<div class="total"><span class="t-lbl">All challenges</span>${parts}<span><b class="num">${state.challenges.length-done}</b> active</span>${done?`<span><b class="num">${done}</b> complete</span>`:""}</div>`;
+  }
   app.innerHTML = `
+    ${totalStrip}
     <section class="hero">
       ${jarSVG(shownPct, state.name)}
       <div>
@@ -529,7 +584,7 @@ function commit(c, before, msg){
 
 function toggleSlot(n){
   const c = active(); const before = savedOf(c);
-  const label = c.type==="env" ? `Envelope ${n}` : `Week ${n}`;
+  const label = `${SLOT[c.type][0]} ${n}`;
   if(c.items[n]!=null){
     const prev = c.items[n]; delete c.items[n];
     commit(c,before,{text:`${label} unmarked`, undo:()=>{ c.items[n]=prev; save(); render(); }});
@@ -542,7 +597,8 @@ function toggleSlot(n){
 
 function nextWeek(){
   const c = active();
-  for(let i=1;i<=52;i++){ if(c.items[i]==null){ toggleSlot(i); return; } }
+  for(let i=1;i<=slotCount(c);i++){ if(c.items[i]==null){ toggleSlot(i); return; } }
+  toast("Every one is saved. You did it!");
 }
 
 let revealSlot = null;
@@ -563,7 +619,7 @@ function randomPick(){
 }
 function showReveal(n){
   const c = active(); revealSlot = n;
-  $("#revealLabel").textContent = c.type==="env" ? `Envelope ${n}` : `Week ${n}`;
+  $("#revealLabel").textContent = `${SLOT[c.type][0]} ${n}`;
   $("#revealAmt").textContent = money(slotAmount(c,n),c.currency);
   $("#revealMsg").textContent = "Put this amount aside, then tap below to fill it.";
   $("#revealDlg").showModal();
@@ -635,6 +691,9 @@ function updateHints(){
   const cur = $("#fCur").value;
   $("#multHint").textContent = `Fill all 100 and you'll have ${money(5050*Number($("#fMult").value),cur)}.`;
   $("#startHint").textContent = `Finish all 52 weeks and you'll have ${money(1378*Number($("#fStart").value),cur)}.`;
+  const flat = $("#fDayMode").value==="flat", da = Number($("#fDayAmt").value)||0;
+  $("#fDayAmtLbl").textContent = flat ? "Amount each day" : "Day 1 amount";
+  $("#dayHint").textContent = da>0 ? `Finish all 30 days and you'll have ${money((flat?30:465)*da,cur)}.` : "";
 }
 function setType(t){
   newType = t;
@@ -652,7 +711,8 @@ function openNew(){
   $("#newDlg").showModal();
 }
 document.querySelectorAll("#typeList .type").forEach(b=>b.onclick=()=>setType(b.dataset.type));
-["#fCur","#fMult","#fStart"].forEach(s=>$(s).addEventListener("change",updateHints));
+["#fCur","#fMult","#fStart","#fDayMode"].forEach(s=>$(s).addEventListener("change",updateHints));
+$("#fDayAmt").addEventListener("input",updateHints);
 $("#newCancel").onclick = () => $("#newDlg").close();
 $("#newDlg").addEventListener("cancel", e => { if(!state.challenges.length) e.preventDefault(); });
 
@@ -662,6 +722,11 @@ $("#newForm").addEventListener("submit", e => {
   const ch = {id:uid(), type:newType, currency:cur, items:{}, deposits:[], reached:[], created:today()};
   if(newType==="env"){ ch.mult = Number($("#fMult").value); ch.title = "100 Envelopes"; }
   else if(newType==="week"){ ch.start = Number($("#fStart").value); ch.reverse = $("#fRev").checked; ch.title = "52 Weeks"; }
+  else if(newType==="day"){
+    const da = Number($("#fDayAmt").value);
+    if(!(da>0)){ const er=$("#newErr"); er.textContent="Enter a daily amount above zero."; er.hidden=false; $("#fDayAmt").focus(); return; }
+    ch.dayMode = $("#fDayMode").value; ch.dayAmt = da; ch.title = "30 Days";
+  }
   else {
     const t = Number($("#fTarget").value);
     if(!(t>0)){ const er=$("#newErr"); er.textContent="Enter a target amount above zero."; er.hidden=false; $("#fTarget").focus(); return; }
@@ -697,7 +762,8 @@ $("#challengePick").addEventListener("change", e => {
 $("#settingsBtn").onclick = () => {
   const c = active(); if(!c) return;
   $("#setSub").textContent = c.type==="env" ? `100 Envelope Challenge · ${money(goalOf(c),c.currency)} total`
-    : c.type==="week" ? `52-Week Challenge · ${money(goalOf(c),c.currency)} total` : "Your own savings goal";
+    : c.type==="week" ? `52-Week Challenge · ${money(goalOf(c),c.currency)} total`
+    : c.type==="day" ? `30-Day Challenge · ${money(goalOf(c),c.currency)} total` : "Your own savings goal";
   $("#sName").value = state.name||""; fillCurrency($("#sCur"), c.currency);
   $("#sTitle").value = c.title; $("#sTheme").value = state.theme||"auto";
   $("#sGoalWrap").hidden = c.type!=="goal";
@@ -742,6 +808,54 @@ $("#importFile").addEventListener("change", e => {
   };
   r.readAsText(f);
 });
+
+/* ============ CSV EXPORT ============ */
+function csvCell(v){ const t=String(v??""); return /[",\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t; }
+$("#sCsv").onclick = () => {
+  const rows = [["Challenge","Type","Item","Date","Amount","Currency","Note"]];
+  const TYPE = {env:"100 Envelope",week:"52-Week",day:"30-Day",goal:"Own goal"};
+  state.challenges.forEach(c=>{
+    if(c.type==="goal") c.deposits.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(d=>rows.push([c.title,TYPE.goal,"Deposit",d.date,Number(d.amt).toFixed(2),c.currency,d.note||""]));
+    else Object.keys(c.items).map(Number).sort((a,b)=>a-b).forEach(n=>rows.push([c.title,TYPE[c.type],`${SLOT[c.type][0]} ${n}`,c.items[n],slotAmount(c,n).toFixed(2),c.currency,""]));
+  });
+  const blob = new Blob(["\ufeff"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = `stash-savings-${today()}.csv`; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast(`Exported ${rows.length-1} saves to CSV`);
+};
+
+/* ============ INSTALL (PWA) ============ */
+const isHttp = location.protocol.startsWith("http");
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+let installEvt = null;
+if(isHttp && "serviceWorker" in navigator){
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; refreshInstall(); });
+window.addEventListener("appinstalled", () => { installEvt = null; refreshInstall(); toast("Stash is installed. Find it on your home screen."); });
+function refreshInstall(){
+  const show = isHttp && !isStandalone();
+  $("#installBtn").hidden = !show;
+  ["#installWrap","#installRow","#installDiv"].forEach(s=>$(s).hidden = !show);
+}
+async function doInstall(){
+  if(installEvt){ installEvt.prompt(); try{ await installEvt.userChoice; }catch(e){} installEvt=null; refreshInstall(); return; }
+  const steps = $("#installSteps");
+  if(isIOS){
+    $("#installIntro").textContent = "On iPhone and iPad, install from Safari:";
+    steps.innerHTML = "<li>Tap the <b>Share</b> button (the square with an arrow).</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. Stash now opens from your home screen, even offline.</li><li>Start your challenge <b>from the home screen icon</b>. The installed app keeps its own saves, separate from Safari.</li>";
+  } else {
+    $("#installIntro").textContent = "Install from your browser menu:";
+    steps.innerHTML = "<li><b>Android (Chrome):</b> tap the ⋮ menu, then <b>Install app</b> or <b>Add to Home screen</b>.</li><li><b>Computer (Chrome or Edge):</b> click the install icon at the right end of the address bar, or open the menu and choose <b>Install Stash</b>.</li><li><b>Mac (Safari):</b> choose <b>File</b>, then <b>Add to Dock</b>.</li>";
+  }
+  $("#installDlg").showModal();
+}
+$("#installBtn").onclick = doInstall;
+$("#sInstall").onclick = () => { $("#setDlg").close(); doInstall(); };
+$("#installClose").onclick = () => $("#installDlg").close();
+refreshInstall();
 
 /* ============ DEMO ============ */
 if(DEMO){
